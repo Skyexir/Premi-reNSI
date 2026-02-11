@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NSI 1ère - Exercices Tri par Insertion</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #fdfdfd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            font-weight: normal;
+            margin-top: 5px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            border-left: 5px solid var(--accent);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .hint {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #444;
+        }
+
+        input.num-input {
+            width: 46px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        /* --- Syntax highlighting (style VS Code) --- */
+        pre {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 16px;
+            line-height: 1.6;
+            border: 1px solid #3e4451;
+        }
+
+        .kw {
+            color: #c678dd;
+            font-weight: bold;
+        }
+
+        .func {
+            color: #61afef;
+        }
+
+        .builtin {
+            color: #56b6c2;
+        }
+
+        .var {
+            color: #e06c75;
+        }
+
+        .cmt {
+            color: #7f848e;
+            font-style: italic;
+        }
+
+        .op {
+            color: #56b6c2;
+        }
+
+        input.code-input,
+        textarea.code-area {
+            background: #3e4451;
+            border: 1px solid #5c6370;
+            color: #98c379;
+            font-family: monospace;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.95em;
+        }
+
+        textarea.code-area {
+            width: 100%;
+            height: 140px;
+            padding: 10px;
+            resize: vertical;
+        }
+
+        input.code-input:focus,
+        textarea.code-area:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #4b5263;
+        }
+
+        /* Feedback styles */
+        input.correct,
+        textarea.correct {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724 !important;
+        }
+
+        input.incorrect,
+        textarea.incorrect {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24 !important;
+        }
+
+        .btn-check {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+
+        .btn-check:hover {
+            background-color: #2980b9;
+        }
+
+        .feedback-msg {
+            display: inline-block;
+            margin-left: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .btn-basthon {
+            background-color: #e74c3c;
+            color: white;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #eef6ff;
+            color: #1b6fb6;
+            border: 1px solid #d3eaff;
+            font-size: 0.85em;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>NSI 1ère — Algorithmique</h1>
+        <h2>Exercices interactifs : Le Tri par Insertion</h2>
+    </header>
+
+    <div class="card">
+        <h3>Avant de commencer <span class="pill">rappel</span></h3>
+        <p>
+            Le <strong>tri par insertion</strong> construit progressivement une partie triée à gauche.
+            À chaque tour <code>i</code>, on prend une <em>clé</em> (l'élément <code>tab[i]</code>) et on la
+            <strong>repositionne</strong> au bon endroit dans la partie déjà triée <code>tab[0..i-1]</code> en
+            <strong>décalant</strong> vers la droite les éléments trop grands.
+        </p>
+        <div class="hint">
+            <strong>Vocabulaire :</strong> <br>
+            • <em>clé</em> = valeur qu’on insère <br>
+            • <em>décalage</em> = on copie <code>tab[j]</code> dans <code>tab[j+1]</code> <br>
+            • on s’arrête quand <code>j</code> devient -1 ou quand <code>tab[j] ≤ clé</code>
+        </div>
+    </div>
+
+    <!-- EX 1 -->
+    <div class="card">
+        <h3>Exercice 1 : Le "Robot" (trace d'exécution guidée)</h3>
+        <p>On trie le tableau suivant avec le tri par insertion :</p>
+        <p><code>[7, 3, 9, 1, 5]</code></p>
+        <p>
+            Complétez l'état du tableau <strong>à la fin de chaque tour i</strong> (après insertion).
+            <br><small>Rappel : on commence souvent à <code>i = 1</code> (le 1er élément est déjà "trié").</small>
+        </p>
+
+        <table id="table-ex1">
+            <thead>
+                <tr>
+                    <th>Tour</th>
+                    <th>État du tableau après insertion</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Fin tour i=1<br><small>clé = 3</small></td>
+                    <td>
+                        [ <input type="number" class="num-input" data-ans="3">,
+                        <input type="number" class="num-input" data-ans="7">,
+                        <input type="number" class="num-input" data-ans="9">,
+                        <input type="number" class="num-input" data-ans="1">,
+                        <input type="number" class="num-input" data-ans="5"> ]
+                    </td>
+                </tr>
+                <tr>
+                    <td>Fin tour i=2<br><small>clé = 9</small></td>
+                    <td>
+                        [ <input type="number" class="num-input" data-ans="3">,
+                        <input type="number" class="num-input" data-ans="7">,
+                        <input type="number" class="num-input" data-ans="9">,
+                        <input type="number" class="num-input" data-ans="1">,
+                        <input type="number" class="num-input" data-ans="5"> ]
+                    </td>
+                </tr>
+                <tr>
+                    <td>Fin tour i=3<br><small>clé = 1</small></td>
+                    <td>
+                        [ <input type="number" class="num-input" data-ans="1">,
+                        <input type="number" class="num-input" data-ans="3">,
+                        <input type="number" class="num-input" data-ans="7">,
+                        <input type="number" class="num-input" data-ans="9">,
+                        <input type="number" class="num-input" data-ans="5"> ]
+                    </td>
+                </tr>
+                <tr>
+                    <td>Fin tour i=4<br><small>clé = 5</small></td>
+                    <td>
+                        [ <input type="number" class="num-input" data-ans="1">,
+                        <input type="number" class="num-input" data-ans="3">,
+                        <input type="number" class="num-input" data-ans="5">,
+                        <input type="number" class="num-input" data-ans="7">,
+                        <input type="number" class="num-input" data-ans="9"> ]
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="btn-check" onclick="verifierEx1()">Vérifier</button>
+        <span id="feedback-ex1" class="feedback-msg"></span>
+
+        <div class="hint">
+            <strong>Astuce :</strong> au tour <code>i</code>, seule la partie <code>0..i</code> doit être triée.
+            La fin du tableau peut encore être "en bazar".
+        </div>
+    </div>
+
+    <!-- EX 2 -->
+    <div class="card">
+        <h3>Exercice 2 : Mini-mécanique (décalages)</h3>
+        <p>
+            On est au tour <code>i = 4</code> et on a :
+            <br><code>tab = [2, 4, 7, 9, 5]</code>
+            <br>La clé vaut <code>5</code>, et on commence avec <code>j = 3</code>.
+        </p>
+
+        <div class="grid-2">
+            <div>
+                <p><strong>1) Combien de décalages va-t-on faire ?</strong></p>
+                <input type="number" class="num-input" id="ex2a" style="width: 80px;">
+            </div>
+            <div>
+                <p><strong>2) Quelle sera la position finale de la clé (index) ?</strong></p>
+                <input type="number" class="num-input" id="ex2b" style="width: 80px;">
+            </div>
+        </div>
+
+        <button class="btn-check" onclick="verifierEx2()">Vérifier</button>
+        <span id="feedback-ex2" class="feedback-msg"></span>
+
+        <div class="hint">
+            Ici, on compare <code>tab[j]</code> à la clé : tant que <code>tab[j] &gt; clé</code>, on décale.
+        </div>
+    </div>
+
+    <!-- EX 3 -->
+    <div class="card">
+        <h3>Exercice 3 : Compléter le code (version "classique")</h3>
+        <p>Complétez les trous dans le code Python du tri par insertion.</p>
+
+        <pre>
+<span class="kw">def</span> <span class="func">tri_insertion</span>(tab):
+    n <span class="op">=</span> <span class="builtin">len</span>(tab)
+
+    <span class="cmt"># On commence à 1 : tab[0] est déjà "trié"</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="builtin">range</span>(<input type="text" class="code-input" id="c1" style="width:70px">, n):
+        cle <span class="op">=</span> tab[i]
+        j <span class="op">=</span> i <span class="op">-</span> 1
+
+        <span class="cmt"># Décalage vers la droite tant que c'est trop grand</span>
+        <span class="kw">while</span> j <span class="op">&gt;=</span> 0 <span class="kw">and</span> tab[j] <span class="op">&gt;</span> <input type="text" class="code-input" id="c2" style="width:60px">:
+            tab[j <span class="op">+</span> 1] <span class="op">=</span> tab[j]
+            j <span class="op">=</span> j <span class="op">-</span> 1
+
+        <span class="cmt"># On insère la clé à la bonne place</span>
+        tab[j <span class="op">+</span> 1] <span class="op">=</span> <input type="text" class="code-input" id="c3" style="width:60px">
+
+    <span class="kw">return</span> tab
+</pre>
+
+        <button class="btn-check" onclick="verifierEx3()">Vérifier le code</button>
+        <span id="feedback-ex3" class="feedback-msg"></span>
+
+        <div class="hint">
+            Les réponses attendues sont très courtes : un nombre / un nom de variable déjà présent.
+        </div>
+    </div>
+
+    <!-- EX 4 -->
+    <div class="card" style="border-left-color: #e67e22;">
+        <h3>Exercice 4 : Version détaillée (comprendre ce qu’on fait)</h3>
+        <p>
+            On te donne une version volontairement "verbeuse". Complète les conditions/affectations.
+            Ici, l’objectif est de bien comprendre <strong>quand</strong> on s’arrête et <strong>où</strong> on insère.
+        </p>
+
+        <pre>
+<span class="kw">def</span> <span class="func">tri_insertion_verbose</span>(tab):
+    n <span class="op">=</span> <span class="builtin">len</span>(tab)
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="builtin">range</span>(1, n):
+        cle <span class="op">=</span> tab[i]
+        j <span class="op">=</span> i <span class="op">-</span> 1
+
+        <span class="cmt"># Tant que j est valide ET que l'élément est trop grand</span>
+        <span class="kw">while</span> j <span class="op">&gt;=</span> 0 <span class="kw">and</span> tab[j] <span class="op">&gt;</span> <input type="text" class="code-input" id="v1" style="width:60px">:
+            tab[<input type="text" class="code-input" id="v2" style="width:70px">] <span class="op">=</span> tab[j]
+            j <span class="op">=</span> <input type="text" class="code-input" id="v3" style="width:60px">
+
+        <span class="cmt"># Insertion finale</span>
+        tab[j <span class="op">+</span> 1] <span class="op">=</span> <input type="text" class="code-input" id="v4" style="width:60px">
+
+    <span class="kw">return</span> tab
+</pre>
+
+        <button class="btn-check" onclick="verifierEx4()">Vérifier</button>
+        <span id="feedback-ex4" class="feedback-msg"></span>
+
+        <div class="hint">
+            <strong>Indice :</strong> dans la boucle, on recopie dans la case à droite.
+            Et pour <code>j</code>, on "recule" d’une case à chaque fois.
+        </div>
+    </div>
+
+    <!-- EX 5 -->
+    <div class="card" style="border-left-color: #8e44ad;">
+        <h3>Exercice 5 : Coût (comparaisons et décalages)</h3>
+        <p>
+            On s’intéresse au coût du tri par insertion sur un tableau de taille <strong>N = 5</strong>.
+            <br><small>Attention : ce tri peut être très rapide si le tableau est presque trié.</small>
+        </p>
+
+        <div class="grid-2">
+            <div>
+                <p><strong>1) Meilleur cas</strong> (tableau déjà trié) : combien de comparaisons <em>tab[j] &gt;
+                        clé</em> au total ?</p>
+                <input type="number" class="num-input" id="ex5a" style="width: 100px;">
+                <div class="hint">Au tour i, la boucle <code>while</code> s’arrête tout de suite (mais on teste la
+                    condition).</div>
+            </div>
+
+            <div>
+                <p><strong>2) Pire cas</strong> (tableau décroissant) : combien de décalages au total ?</p>
+                <input type="number" class="num-input" id="ex5b" style="width: 100px;">
+                <div class="hint">Au tour i, on décale i éléments (la clé va tout au début).</div>
+            </div>
+        </div>
+
+        <div style="margin-top:14px;">
+            <p><strong>3) Sur le tableau</strong> <code>[1, 2, 4, 3, 5]</code>, combien de décalages au total ?</p>
+            <input type="number" class="num-input" id="ex5c" style="width: 100px;">
+        </div>
+
+        <button class="btn-check" onclick="verifierEx5()">Vérifier</button>
+        <span id="feedback-ex5" class="feedback-msg"></span>
+
+        <div class="hint">
+            Pour la question 3 : seuls les tours où la clé "bouge" font des décalages.
+        </div>
+    </div>
+
+    <!-- EX 6 -->
+    <div class="card" style="border-left-color: #16a085;">
+        <h3>Exercice 6 : Variante décroissante (sans tout réécrire)</h3>
+        <p>
+            Pour trier <strong>du plus grand au plus petit</strong>, on ne change qu’une condition dans le tri par
+            insertion.
+            Recopie la ligne modifiée complète :
+        </p>
+
+        <input type="text" id="ex6-input"
+            style="width: 100%; padding: 10px; font-family: monospace; border:1px solid #ccc; border-radius:5px;"
+            placeholder="while j >= 0 and tab[j] ... cle:" />
+
+        <button class="btn-check" onclick="verifierEx6()">Vérifier</button>
+        <span id="feedback-ex6" class="feedback-msg"></span>
+
+        <div class="hint">
+            Tu dois inverser le sens du comparateur entre <code>tab[j]</code> et <code>cle</code>.
+        </div>
+    </div>
+
+    <!-- EX 7 (Challenge) -->
+    <div class="card" style="border-left-color: #c0392b;">
+        <h3>Exercice 7 : Challenge sur Basthon (long & progressif)</h3>
+        <p>Cet exercice est à faire sur l'éditeur en ligne :</p>
+        <a href="https://console.basthon.fr/" target="_blank" class="btn-basthon">Ouvrir Basthon 🐍</a>
+
+        <p><strong>Mission A — Tri par insertion sur des tuples</strong></p>
+        <ol>
+            <li>Copie cette liste dans Basthon :</li>
+        </ol>
+        <code>produits = [('Pomme', 2.2), ('Banane', 1.3), ('Kiwi', 3.1), ('Mangue', 2.9), ('Raisin', 2.0), ('Ananas', 4.5)]</code>
+
+        <ol start="2">
+            <li>
+                Écris une fonction <code>tri_prix_croissant(tab)</code> qui trie la liste <strong>par prix
+                    croissant</strong>.
+                <br><em>Indice :</em> le prix est <code>tab[j][1]</code>.
+            </li>
+            <li>
+                Teste ta fonction, puis copie-colle ici le résultat final (la liste triée).
+            </li>
+        </ol>
+
+        <textarea id="ex7a" placeholder="Colle ici la liste triée par prix croissant..."
+            style="width: 100%; height: 70px; padding: 10px; font-family: monospace; border:1px solid #ccc; border-radius:5px;"></textarea>
+
+        <hr style="margin:18px 0; border:none; border-top:1px solid #eee;">
+
+        <p><strong>Mission B — Stabilité (plus dur)</strong></p>
+        <p>
+            Le tri par insertion est <strong>stable</strong> si on fait attention au comparateur.
+            On ajoute des ex-aequo :
+        </p>
+        <code>produits2 = [('Pomme', 2.2), ('Pomme-verte', 2.2), ('Banane', 1.3), ('Kiwi', 3.1), ('Mangue', 2.9)]</code>
+
+        <ol>
+            <li>
+                Trie par prix croissant <strong>en gardant l’ordre initial</strong> entre éléments de même prix.
+            </li>
+            <li>
+                Copie-colle le résultat trié.
+            </li>
+        </ol>
+
+        <textarea id="ex7b" placeholder="Colle ici la liste triée (stabilité attendue)..."
+            style="width: 100%; height: 70px; padding: 10px; font-family: monospace; border:1px solid #ccc; border-radius:5px;"></textarea>
+
+        <hr style="margin:18px 0; border:none; border-top:1px solid #eee;">
+
+        <p><strong>Mission C — Vraie difficulté (tri avec clé personnalisée)</strong></p>
+        <p>
+            Écris une fonction <code>tri_insertion_cle(tab, clef)</code> qui trie <code>tab</code>
+            en utilisant une fonction <code>clef(x)</code> (comme <code>key=</code> dans Python).
+        </p>
+        <ul>
+            <li>Exemple d’appel : <code>tri_insertion_cle(produits, lambda x: x[1])</code></li>
+            <li>Tu dois pouvoir trier des listes de tuples, ou des listes de nombres, etc.</li>
+        </ul>
+
+        <p><strong>Test demandé :</strong> trie <code>produits</code> par ordre décroissant de prix avec ta fonction.
+        </p>
+        <textarea id="ex7c" placeholder="Colle ici le résultat du tri décroissant avec tri_insertion_cle..."
+            style="width: 100%; height: 70px; padding: 10px; font-family: monospace; border:1px solid #ccc; border-radius:5px;"></textarea>
+
+        <button class="btn-check" onclick="verifierEx7()">Vérifier les résultats</button>
+        <span id="feedback-ex7" class="feedback-msg"></span>
+
+        <div class="hint">
+            <strong>Conseil pédagogique :</strong> pour la stabilité, évite de décaler quand c’est "égal".
+            Donc attention à <code>&gt;</code> vs <code>&gt;=</code> dans la condition.
+        </div>
+    </div>
+
+    <script>
+        // Helpers
+        function setMsg(id, ok, msgOk, msgNo) {
+            const fb = document.getElementById(id);
+            fb.textContent = ok ? msgOk : msgNo;
+            fb.style.color = ok ? "green" : "red";
+        }
+
+        function checkNum(el, expected) {
+            if (String(el.value) === String(expected)) {
+                el.classList.add('correct');
+                el.classList.remove('incorrect');
+                return true;
+            } else {
+                el.classList.add('incorrect');
+                el.classList.remove('correct');
+                return false;
+            }
+        }
+
+        function checkText(el, accepted) {
+            const val = el.value.trim().replace(/\s+/g, "");
+            const acc = accepted.map(x => x.replace(/\s+/g, ""));
+            if (acc.includes(val)) {
+                el.classList.add('correct');
+                el.classList.remove('incorrect');
+                return true;
+            } else {
+                el.classList.add('incorrect');
+                el.classList.remove('correct');
+                return false;
+            }
+        }
+
+        function cleanListText(s) {
+            // uniformise espaces + doubles quotes -> simples quotes
+            return (s || "")
+                .replace(/\s+/g, "")
+                .replace(/"/g, "'");
+        }
+
+        // --- Ex 1 ---
+        function verifierEx1() {
+            let inputs = document.querySelectorAll('#table-ex1 input');
+            let allCorrect = true;
+
+            inputs.forEach(input => {
+                if (input.value == input.dataset.ans) {
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                    allCorrect = false;
+                }
+            });
+
+            setMsg("feedback-ex1", allCorrect, "Bravo ! Trace correcte.", "Il y a des erreurs : refais les insertions pas à pas.");
+        }
+
+        // --- Ex 2 ---
+        function verifierEx2() {
+            const a = document.getElementById("ex2a");
+            const b = document.getElementById("ex2b");
+
+            // tab = [2,4,7,9,5], cle=5 : on décale 9 puis 7 -> 2 décalages ; insertion en index 2
+            const ok1 = checkNum(a, 2);
+            const ok2 = checkNum(b, 2);
+
+            setMsg("feedback-ex2", ok1 && ok2, "Parfait : 2 décalages, clé insérée en index 2.", "Reprends : quels éléments sont > 5 ?");
+        }
+
+        // --- Ex 3 ---
+        function verifierEx3() {
+            const answers = {
+                'c1': ['1'],
+                'c2': ['cle'],
+                'c3': ['cle']
+            };
+
+            let allCorrect = true;
+            for (let id in answers) {
+                const el = document.getElementById(id);
+                const ok = checkText(el, answers[id]);
+                if (!ok) allCorrect = false;
+            }
+
+            setMsg("feedback-ex3", allCorrect, "Code fonctionnel ✅", "Vérifie : début du range ? nom de la variable clé ?");
+        }
+
+        // --- Ex 4 ---
+        function verifierEx4() {
+            const answers = {
+                'v1': ['cle'],
+                'v2': ['j+1', 'j + 1'],
+                'v3': ['j-1', 'j - 1'],
+                'v4': ['cle']
+            };
+
+            let allCorrect = true;
+            for (let id in answers) {
+                const el = document.getElementById(id);
+                const ok = checkText(el, answers[id]);
+                if (!ok) allCorrect = false;
+            }
+
+            setMsg("feedback-ex4", allCorrect, "Nickel : tu maîtrises la mécanique (décalage + insertion).", "Il reste des cases incorrectes.");
+        }
+
+        // --- Ex 5 ---
+        function verifierEx5() {
+            const a = document.getElementById("ex5a");
+            const b = document.getElementById("ex5b");
+            const c = document.getElementById("ex5c");
+
+            // N=5
+            // meilleur cas : à chaque i (1..4) on teste tab[j] > cle une fois -> 4 comparaisons
+            // pire cas décalages : 1+2+3+4 = 10
+            // [1,2,4,3,5] : seul i=3 (cle=3) décale 4->1 décalage ; total=1
+            const ok1 = checkNum(a, 4);
+            const ok2 = checkNum(b, 10);
+            const ok3 = checkNum(c, 1);
+
+            setMsg("feedback-ex5", ok1 && ok2 && ok3, "Exact ✅ (meilleur cas linéaire, pire cas quadratique).", "Recompte bien : au tour i, combien de décalages/tests ?");
+        }
+
+        // --- Ex 6 ---
+        function verifierEx6() {
+            const el = document.getElementById("ex6-input");
+            const v = el.value.trim().toLowerCase();
+
+            // Validation "large" : doit contenir while, j>=0, tab[j], cle et '<'
+            const ok = v.includes("while") && v.includes("j") && v.includes(">=") && v.includes("tab[j]") && v.includes("cle") && v.includes("<");
+
+            if (ok) {
+                el.classList.add("correct");
+                el.classList.remove("incorrect");
+                setMsg("feedback-ex6", true, "C'est ça : on inverse la comparaison pour trier en décroissant.", "");
+            } else {
+                el.classList.add("incorrect");
+                el.classList.remove("correct");
+                setMsg("feedback-ex6", false, "", "Écris une ligne complète du type : while j >= 0 and tab[j] < cle:");
+            }
+        }
+
+        // --- Ex 7 ---
+        function verifierEx7() {
+            const a = document.getElementById("ex7a");
+            const b = document.getElementById("ex7b");
+            const c = document.getElementById("ex7c");
+
+            const cleanA = cleanListText(a.value);
+            const cleanB = cleanListText(b.value);
+            const cleanC = cleanListText(c.value);
+
+            const expectedA = "[('Banane',1.3),('Raisin',2.0),('Pomme',2.2),('Mangue',2.9),('Kiwi',3.1),('Ananas',4.5)]";
+            const expectedB = "[('Banane',1.3),('Pomme',2.2),('Pomme-verte',2.2),('Mangue',2.9),('Kiwi',3.1)]";
+            const expectedC = "[('Ananas',4.5),('Kiwi',3.1),('Mangue',2.9),('Pomme',2.2),('Raisin',2.0),('Banane',1.3)]";
+
+            let okA = cleanA.includes(expectedA);
+            let okB = cleanB.includes(expectedB);
+            let okC = cleanC.includes(expectedC);
+
+            // feedback + couleurs
+            if (okA) { a.classList.add("correct"); a.classList.remove("incorrect"); }
+            else { a.classList.add("incorrect"); a.classList.remove("correct"); }
+
+            if (okB) { b.classList.add("correct"); b.classList.remove("incorrect"); }
+            else { b.classList.add("incorrect"); b.classList.remove("correct"); }
+
+            if (okC) { c.classList.add("correct"); c.classList.remove("incorrect"); }
+            else { c.classList.add("incorrect"); c.classList.remove("correct"); }
+
+            const all = okA && okB && okC;
+            setMsg("feedback-ex7", all,
+                "Excellent ! Mission A, B (stabilité) et C validées. 🔥",
+                "Pas encore : vérifie l’ordre, et pour la stabilité attention à > vs >= dans la boucle."
+            );
+        }
+    </script>
+
+</body>
+
+</html>
