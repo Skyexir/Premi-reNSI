@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Emploi du temps — Kilian & Théo</title>
+<style>
+  :root {
+    --bg:#f7f9fc; --paper:#ffffff; --ink:#202b3a; --muted:#708096;
+    --line:#dfe6ef; --kilian:#2563eb; --kilian-soft:#e9f1ff;
+    --theo:#df6733; --theo-soft:#fff0e6;
+    --other:#8b96a8; --other-soft:#eff1f4;
+    --slot:77px; --slots:10;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); background:var(--bg); }
+  main { max-width:1320px; margin:30px auto; padding:0 18px 30px; }
+  h1 { margin:0 0 6px; font-size:clamp(24px,3vw,32px); letter-spacing:-.045em; }
+  p { margin:0; }
+  .header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:17px; }
+  .subtitle { color:var(--muted); font-size:13px; }
+  .current { display:flex; align-items:flex-end; flex-direction:column; gap:4px; }
+  .current-tag { font-size:13px; font-weight:800; color:#174a9e; background:#e6efff; border:1px solid #cfdeff; border-radius:99px; padding:7px 12px; }
+  .current-note { font-size:11px; color:var(--muted); }
+  .toolbar { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 12px; }
+  .legend { display:flex; align-items:center; flex-wrap:wrap; gap:10px 20px; font-size:12px; font-weight:750; }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:currentColor; }
+  .legend .k { color:var(--kilian); } .legend .t { color:var(--theo); } .legend .o { color:var(--other); }
+  .toggle { color:var(--muted); font-size:12px; display:flex; align-items:center; gap:7px; cursor:pointer; }
+  .toggle input { accent-color:#66748a; }
+  .board { overflow-x:auto; background:var(--paper); border:1px solid var(--line); border-radius:13px; box-shadow:0 6px 25px #273c5510; }
+  /* Une seule et unique colonne pour chaque jour. */
+  .calendar { display:grid; grid-template-columns:64px repeat(5,minmax(195px,1fr)); grid-template-rows:57px auto; min-width:1040px; }
+  .corner { grid-row:1; grid-column:1; position:sticky; left:0; z-index:8; background:#fff; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .day-head { grid-row:1; text-align:center; align-content:center; font-size:16px; font-weight:800; border-left:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .day-head.today { background:#f3f7ff; }
+  .axis { grid-column:1; grid-row:2; height:calc(var(--slots) * var(--slot)); position:sticky; left:0; z-index:6; background:#fff; border-right:1px solid var(--line); }
+  .tick { position:absolute; left:0; width:100%; text-align:center; transform:translateY(-50%); color:#8190a2; font-size:11px; font-weight:750; font-variant-numeric:tabular-nums; }
+  .tick:first-child { transform:translateY(3px); }
+  /* Les lignes de grille reprennent exactement les changements de créneau de la photo. */
+  .track { grid-row:2; height:calc(var(--slots) * var(--slot)); position:relative; border-left:1px solid var(--line); background:#fff; }
+  .time-rule { position:absolute; left:0; right:0; height:0; border-top:1px solid var(--line); pointer-events:none; }
+  .event { z-index:1; position:absolute; overflow:hidden; min-width:0; display:flex; flex-direction:column; gap:5px; border-left:4px solid; border-radius:7px; padding:9px 7px; transition:box-shadow .15s ease; }
+  .event.kilian { background:var(--kilian-soft); border-color:var(--kilian); color:#174c9f; }
+  .event.theo { background:var(--theo-soft); border-color:var(--theo); color:#a4441f; }
+  .event.other { background:var(--other-soft); border-color:var(--other); color:#566577; }
+  .event[data-week]:not(.is-current) { opacity:.78; }
+  .event:hover { z-index:5; opacity:1; box-shadow:0 5px 15px #20365033; }
+  .event-title { font-size:13px; font-weight:800; line-height:1.23; overflow-wrap:anywhere; }
+  .event-detail { font-size:11px; line-height:1.25; opacity:.9; }
+  .event-week { align-self:flex-start; flex-shrink:0; font-size:10px; font-weight:850; border-radius:5px; padding:2px 5px; background:#ffffffb8; }
+  .event-week.current { box-shadow:0 0 0 1px currentColor inset; }
+  .event.compact { padding:7px 5px; gap:5px; }
+  .event.compact .event-title { font-size:11.5px; }
+  .event.compact .event-detail { display:none; }
+  .note { margin:12px 3px; color:var(--muted); font-size:12px; line-height:1.6; }
+  @media (max-width:700px) {
+    main { padding:0 10px 25px; margin:18px auto; }
+    .header { gap:10px; }
+    .current { align-items:flex-start; }
+    .calendar { min-width:1035px; }
+  }
+  @media print {
+    @page {size:landscape; margin:8mm;}
+    :root { --slot:62px; }
+    body {background:#fff;}
+    main { margin:0; padding:0; max-width:none; }
+    .board { overflow:visible; box-shadow:none; }
+    .calendar { min-width:0; grid-template-columns:49px repeat(5,minmax(0,1fr)); }
+    .corner,.axis { position:static; }
+    .event,.current-tag { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .event-title {font-size:10px;}
+    .event-detail {font-size:9px;}
+    .toggle {display:none;}
+  }
+</style>
+</head>
+<body>
+<main>
+<header class="header">
+  <div>
+    <h1>Emploi du temps</h1>
+    <p class="subtitle">Kilian &amp; Théo · Créneaux exacts de la photo · Semaines A et B réunies</p>
+  </div>
+  <div class="current" aria-live="polite">
+    <span class="current-tag" id="currentTag">Semaine actuelle estimée : A</span>
+    <span class="current-note" id="currentNote"></span>
+  </div>
+</header>
+<div class="toolbar">
+  <div class="legend">
+    <span class="k"><i class="dot"></i>Kilian</span>
+    <span class="t"><i class="dot"></i>Théo</span>
+    <span class="o" id="otherLegend"><i class="dot"></i>Autres cours de l'image</span>
+  </div>
+  <label class="toggle"><input type="checkbox" id="showOther" checked> Afficher les autres cours</label>
+</div>
+<div class="board" role="region" aria-label="Emploi du temps avec une colonne par jour, pour les semaines A et B" tabindex="0">
+  <div class="calendar">
+    <div class="corner"></div>
+    <div class="day-head" style="grid-column:2">Lundi</div>
+    <div class="day-head" style="grid-column:3">Mardi</div>
+    <div class="day-head" style="grid-column:4">Mercredi</div>
+    <div class="day-head" style="grid-column:5">Jeudi</div>
+    <div class="day-head" style="grid-column:6">Vendredi</div>
+    <div class="axis" id="axis"></div>
+    <div class="track" data-day="0" style="grid-column:2"></div>
+    <div class="track" data-day="1" style="grid-column:3"></div>
+    <div class="track" data-day="2" style="grid-column:4"></div>
+    <div class="track" data-day="3" style="grid-column:5"></div>
+    <div class="track" data-day="4" style="grid-column:6"></div>
+  </div>
+</div>
+<p class="note"><strong>Lecture :</strong> un cours sans étiquette se déroule chaque semaine ; <strong>A</strong> ou <strong>B</strong> indique un cours réservé à cette semaine. Les cours sont alignés sur <strong>les créneaux exacts de la photo</strong> et les horaires figurent uniquement à gauche. Les cours qui se chevauchent partagent la même colonne du jour. La semaine actuelle est calculée à partir du lundi 9 novembre 2026 (semaine A), avec alternance chaque lundi, à l'heure de Paris. Les cours gris proviennent de l'image ; leur attribution et leur alternance restent à confirmer.</p>
+</main>
+<script>
+  // Chaque repère de la photo est une limite de créneau.
+  // Les blocs prennent une ou plusieurs rangées de cette grille (pas des heures arrondies).
+  const TIME_MARKS = ['08h00','08h58','10h06','11h04','12h02','13h02','14h00','14h58','16h07','17h05','18h03'];
+  function positionFromSlot(slot) { return `calc(${slot} * var(--slot))`; }
+  const DAY_MS = 86400000;
+  const ANCHOR_MONDAY_A = Date.UTC(2026,10,9);
+  function nowParisDateParts() {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone:'Europe/Paris', year:'numeric', month:'2-digit', day:'2-digit'
+    }).formatToParts(new Date());
+    const vals = Object.fromEntries(parts.filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+    return {year:+vals.year,month:+vals.month,day:+vals.day};
+  }
+  function currentWeekInfo() {
+    const {year,month,day}=nowParisDateParts();
+    const utc=Date.UTC(year,month-1,day);
+    const monday=utc-((new Date(utc).getUTCDay()+6)%7)*DAY_MS;
+    const weeks=Math.round((monday-ANCHOR_MONDAY_A)/(7*DAY_MS));
+    return {week:((weeks%2)+2)%2===0?'A':'B',monday,dayOfWeek:(new Date(utc).getUTCDay()+6)%7};
+  }
+  const info=currentWeekInfo();
+  document.getElementById('currentTag').textContent=`Semaine actuelle estimée : ${info.week}`;
+  const dateFormat=new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+  document.getElementById('currentNote').textContent=`Semaine du ${dateFormat.format(new Date(info.monday))}`;
+  if(info.dayOfWeek<5)document.querySelectorAll('.day-head')[info.dayOfWeek].classList.add('today');
+
+  // start et end sont les indices des repères ci-dessus.
+  // Ex. 08h00–10h06 = 0–2 ; 14h58–17h05 = 7–9.
+  const courses=[
+    {day:0,start:0,end:2,who:'kilian',title:'SNT',detail:'Demi-groupe'},
+    {day:0,start:3,end:4,who:'kilian',title:'1ère NSI'},
+    {day:0,start:6,end:8,who:'kilian',title:'Tle NSI'},
+    {day:0,start:6,end:8,who:'theo',title:'SNT',detail:'Demi-groupes',week:'A'},
+    {day:0,start:7,end:9,who:'theo',title:'SNT',detail:'Demi-groupes',week:'B'},
+    {day:1,start:0,end:1,who:'kilian',title:'SNT',detail:'Classe entière',week:'B'},
+    {day:1,start:1,end:2,who:'theo',title:'1ère NSI'},
+    {day:1,start:2,end:4,who:'theo',title:'Tle NSI'},
+    {day:1,start:8,end:9,who:'theo',title:'SNT',detail:'Classe entière',week:'B'}
+  ];
+  const imageCourses=[
+    {day:0,start:8,end:10,who:'other',title:'1ère NSI'},
+    {day:2,start:0,end:1,who:'other',title:'2de 3'},
+    {day:2,start:1,end:3,who:'other',title:'Tle 7 · TP'},
+    {day:3,start:1,end:2,who:'other',title:'1ère NSI'},
+    {day:3,start:2,end:4,who:'other',title:'Tle 3 NSI'},
+    {day:3,start:6,end:8,who:'other',title:'1ère NSI'},
+    {day:4,start:0,end:1,who:'other',title:'2de 3'},
+    {day:4,start:1,end:2,who:'other',title:'2de 3'},
+    {day:4,start:2,end:3,who:'other',title:'1ère NSI'}
+  ];
+
+  for (const [index,time] of TIME_MARKS.entries()) {
+    const mark = document.createElement('span');
+    mark.className = 'tick';
+    mark.style.top = positionFromSlot(index);
+    mark.textContent = time;
+    document.getElementById('axis').append(mark);
+  }
+  // Répartit uniquement les cours qui se croisent, à l'intérieur d'une journée.
+  // Aucun nouveau jour/aucune nouvelle colonne A/B n'est créé.
+  function packLanes(events){
+    const sorted=events.map(e=>({...e})).sort((a,b)=>a.start-b.start || b.end-a.end);
+    let component=[], componentEnd=-Infinity;
+    function flush(){
+      if(!component.length)return;
+      const laneEnds=[];
+      for(const e of component){
+        let lane=laneEnds.findIndex(lastEnd=>lastEnd<=e.start);
+        if(lane<0)lane=laneEnds.length;
+        laneEnds[lane]=e.end;e.lane=lane;
+      }
+      for(const e of component)e.lanes=laneEnds.length;
+    }
+    for(const e of sorted){
+      if(component.length&&e.start>=componentEnd){flush();component=[];componentEnd=-Infinity;}
+      component.push(e);componentEnd=Math.max(componentEnd,e.end);
+    }
+    flush();return sorted;
+  }
+  function addText(el,cls,txt){
+    const span=document.createElement('span');span.className=cls;span.textContent=txt;el.appendChild(span);
+  }
+  function draw(){
+    const includeOther=document.getElementById('showOther').checked;
+    document.getElementById('otherLegend').hidden=!includeOther;
+    const all=includeOther?courses.concat(imageCourses):courses;
+    document.querySelectorAll('.track').forEach(track=>{
+      const day=Number(track.dataset.day);
+      track.replaceChildren();
+      for (const [index,time] of TIME_MARKS.entries()) {
+        const line = document.createElement('div');
+        line.className = 'time-rule';
+        line.style.top = positionFromSlot(index);
+        track.appendChild(line);
+      }
+      for(const e of packLanes(all.filter(c=>c.day===day))){
+        const article=document.createElement('article');
+        article.className=`event ${e.who}${e.lanes>1?' compact':''}${e.week===info.week?' is-current':''}`;
+        if(e.week)article.dataset.week=e.week;
+        article.style.top=`calc(${e.start} * var(--slot) + 2px)`;
+        article.style.height=`calc(${e.end-e.start} * var(--slot) - 4px)`;
+        // Le SNT du mardi en semaine B occupe toujours la moitié droite.
+        // Les autres cours conservent leur placement habituel.
+        if(e.day===1 && e.week==='B' && e.title==='SNT'){
+          article.style.left='calc(50% + 3px)';
+          article.style.width='calc(50% - 6px)';
+          article.classList.add('compact');
+        } else {
+          article.style.left=`calc(${e.lane*100/e.lanes}% + 3px)`;
+          article.style.width=`calc(${100/e.lanes}% - 6px)`;
+        }
+        const who=e.who==='kilian'?'Kilian':e.who==='theo'?'Théo':'Autre cours';
+        article.title=`${who} · ${e.title} · ${TIME_MARKS[e.start]}–${TIME_MARKS[e.end]}${e.week?' · semaine '+e.week:' · semaines A et B'}`;
+        addText(article,'event-title',e.title);
+        if(e.week){
+          const badge=document.createElement('span');
+          badge.className='event-week'+(e.week===info.week?' current':'');
+          badge.textContent='Sem. '+e.week;
+          article.appendChild(badge);
+        }
+        if(e.detail)addText(article,'event-detail',e.detail);
+        track.appendChild(article);
+      }
+    });
+  }
+  document.getElementById('showOther').addEventListener('change',draw);
+  draw();
+</script>
+</body>
+</html>
