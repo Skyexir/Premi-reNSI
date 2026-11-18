@@ -156,7 +156,7 @@
   ];
   const imageCourses=[
     {day:0,start:8,end:10,who:'other',title:'1ère NSI'},
-    {day:2,start:0,end:1,who:'other',title:'SNT',week:'A'},
+    {day:2,start:0,end:1,who:'other',title:'SNT',week:'B'},
     {day:2,start:1,end:3,who:'other',title:'Terminale ENS'},
     {day:3,start:1,end:2,who:'other',title:'1ère NSI'},
     {day:3,start:2,end:4,who:'other',title:'Terminale NSI'},
@@ -218,7 +218,7 @@
         article.style.height=`calc(${e.end-e.start} * var(--slot) - 4px)`;
         // Le SNT du mardi en semaine B occupe toujours la moitié droite.
         // Les autres cours conservent leur placement habituel.
-        if(e.day===1 && e.week==='B' && e.title==='SNT'){
+        if((e.day===1 || e.day===2) && e.week==='B' && e.title==='SNT'){
           article.style.left='calc(50% + 3px)';
           article.style.width='calc(50% - 6px)';
           article.classList.add('compact');
